@@ -1,9 +1,10 @@
-import settings
+import Settings.settings
+import FileSystem.filehandling
 import os
 import json
 import multiprocessing
 
-class MapReduce(object):
+class MapReduce(object, filehandling):
 
     def __init__(self, input_dir = settings.default_input_dir, output_dir = settings.default_output_dir,
                  n_mappers = settings.default_n_mappers, n_reducers = settings.default_n_reducers,
@@ -33,9 +34,7 @@ class MapReduce(object):
         mapper_result = self.mapper(key, value)
         for reducer_index in range(self.n_reducers):
             temp_map_file = open(settings.get_temp_map_file(index, reducer_index), "w+")
-            json.dump([(key, value) for (key, value) in mapper_result 
-                                        if self.check_position(key, reducer_index)]
-                        , temp_map_file)
+            json.dump([(key, value) for (key, value) in mapper_result if self.check_position(key, reducer_index)], temp_map_file)
             temp_map_file.close()
         
     def run_reducer(self, index):

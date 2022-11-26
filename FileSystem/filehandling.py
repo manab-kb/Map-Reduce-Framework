@@ -1,6 +1,6 @@
 import os
 import json
-import settings
+import Settings.settings
 
 class FileHandler(object):
 
