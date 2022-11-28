@@ -1,6 +1,6 @@
-default_input_dir = "input_files"
-default_map_dir = "temp_map_files"
-default_output_dir = "output_files"
+default_input_dir = "../input_files"
+default_map_dir = "../temp_map_files"
+default_output_dir = "../output_files"
 
 default_n_mappers = 4
 default_n_reducers = 4

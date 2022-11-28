@@ -33,3 +33,20 @@ class FileHandler(object):
                 current_split_unit = self.begin_file_split(current_split_index, index)
             index += 1
         current_split_unit.close()
+
+    def join_files(self, number_of_files, clean=False, sort=True, decreasing=True):
+        output_join_list = []
+        for reducer_index in range(0, number_of_files):
+            f = open(settings.get_output_file(reducer_index), "r")
+            output_join_list += json.load(f)
+            f.close()
+            if clean:
+                os.unlink(settings.get_output_file(reducer_index))
+        if sort:
+            from operator import itemgetter as operator_ig
+            # sort using the key
+            output_join_list.sort(key=operator_ig(1), reverse=decreasing)
+        output_join_file = open(settings.get_output_join_file(self.output_dir), "w+")
+        json.dump(output_join_list, output_join_file)
+        output_join_file.close()
+        return output_join_list

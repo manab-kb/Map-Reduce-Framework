@@ -1,21 +1,21 @@
-import Settings.settings as settings
 from FileSystem.filehandling import *
 import os
 import json
 from multiprocessing import *
 
 
-class MapReduce(object, FileHandler):
+class MapReduce(object):
 
     def __init__(self, input_dir=settings.default_input_dir, output_dir=settings.default_output_dir,
                  n_mappers=settings.default_n_mappers, n_reducers=settings.default_n_reducers,
                  clean=True):
-        super.__init__(self, input_dir, output_dir)
         self.input_dir = input_dir
         self.output_dir = output_dir
         self.n_mappers = n_mappers
         self.n_reducers = n_reducers
         self.clean = clean
+        self.file_handler = FileHandler(settings.get_input_file(self.input_dir), self.output_dir)
+        self.file_handler.split_file(self.n_mappers)
 
     def mapper(self, key, value):
         # Find a way to pass user defined files/code here
@@ -24,6 +24,9 @@ class MapReduce(object, FileHandler):
     def reducer(self, key, values_list):
         # Find a way to pass user defined files/code here
         pass
+
+    def check_position(self, key, position):
+        return position == (hash(key) % self.n_reducers)
 
     def run_mapper(self, index):
         input_split_file = open(settings.get_input_split_file(index), "r")
@@ -60,6 +63,13 @@ class MapReduce(object, FileHandler):
         output_file = open(settings.get_output_file(index), "w+")
         json.dump(key_value_list, output_file)
         output_file.close()
+
+    def join_outputs(self, clean=True, sort=True, decreasing=True):
+        try:
+            return self.file_handler.join_files(self.n_reducers, clean, sort, decreasing)
+        except Exception as e:
+            print("Exception occurred while joining: maybe the join has been performed already  -- " + str(e))
+            return []
 
     def run(self, join=False):
         map_workers = []
